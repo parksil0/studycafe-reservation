@@ -1,5 +1,7 @@
 package com.reservation.studycafe.springboot.config.auth;
 
+import com.reservation.studycafe.springboot.config.auth.dto.OAuthAttributes;
+import com.reservation.studycafe.springboot.config.auth.dto.SessionUser;
 import com.reservation.studycafe.springboot.domain.user.User;
 import com.reservation.studycafe.springboot.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +41,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
                 attributes.getAttributes(), attributes.getNameAttributeKey());
+    }
+
+    private User saveOrUpdate(OAuthAttributes attributes) {
+        User user = userRepository.findByEmail(attributes.getEmail())
+                .map(entity -> entity.update(attributes.getName(), attributes.getPicture())).orElse(attributes.toEntity());
+
+        return userRepository.save(user);
     }
 }
